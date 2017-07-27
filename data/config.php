@@ -7,6 +7,6 @@ define('CONFIG', array(
     'dbConfig'          =>  array(
         'dbname'    =>  'zhihu',
         'user'      =>  'root',
-        'password'  =>  '1490015807ltL',
+        'password'  =>  '123456',
     ),
 ));
