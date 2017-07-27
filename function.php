@@ -11,7 +11,7 @@ function getFollowingInfo($followingData)
     $data = json_decode(strip_tags($json), true);
     $followingArray = array();
     $followingArray['paging'] = $data['paging'];
-    $followingArray['error'] = $data['error'];
+    //$followingArray['error'] = $data['error'];
     $size = count($data['data']);
     for ($i = 0; $i < $size; $i++) {
         $followingArray['data'][$i] = array_filter($data['data'][$i], 'filter_key', ARRAY_FILTER_USE_KEY);
@@ -140,14 +140,13 @@ function getUserFollow($type = '',$tmp_u_id, $offset = 0, $url = ''){
         echo '--------------again curl ' . $tmp_u_id . " $type----------";
         getUserFollow($type, $tmp_u_id, $offset, $url);
     }*/
-    global $i;
-    if(iseet($user_following['error'])){
-	exit($i);
-    }
-	sleep(20);
+    /*global $i;
+    if(isset($user_following['error'])){
+	    exit($i);
+    }*/
     if((empty($user_following['data']) || !isset($user_following['data']))){
         echo "------------ " . $tmp_u_id . $type . " is empty------------\n";
-        error_log('curl ' . $tmp_u_id . $type . " is empty\n", 3, './error.log');
+        //error_log('curl ' . $tmp_u_id . $type . " is empty\n", 3, './error.log');
         return;
     }
     foreach ($user_following['data'] as $v) {
@@ -157,6 +156,7 @@ function getUserFollow($type = '',$tmp_u_id, $offset = 0, $url = ''){
         $data = array('user_id' =>  $v['url_token'], 'sex'  =>  $v['gender']);
         User::addOneUser($data);
     }
+    sleep(1);
     if($user_following['paging']['is_end'] == false && isset($user_following['paging']['is_end'])){
         $offset += $offset + 20;
         $url = "https://www.zhihu.com/api/v4/members/{$tmp_u_id}/{$type}?include={$include}&offset={$offset}&limit={$limit}";

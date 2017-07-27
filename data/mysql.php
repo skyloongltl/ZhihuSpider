@@ -10,7 +10,6 @@ class Mysql{
             $this->pdo = new \PDO("mysql:dbname={$dbname};host=127.0.0.1", CONFIG['dbConfig']['user'], CONFIG['dbConfig']['password'], array(PDO::ATTR_PERSISTENT => true));
         }catch (PDOException $e){
             echo 'connect mysql error:'.$e->getMessage();
-            return false;
         }
     }
 
