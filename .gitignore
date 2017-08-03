@@ -2,3 +2,4 @@ curl.sh
 error.log
 test.php
 ltl-28.html
+.gitignore

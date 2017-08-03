@@ -1,4 +1,5 @@
 <?php
+namespace data;
 class Request{
 
     public static function curl($url = '', $cookie = '', $header = array()){
@@ -6,12 +7,17 @@ class Request{
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_COOKIE,$cookie);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0');
         curl_setopt($ch, CURLOPT_REFERER, 'https://www.zhihu.com');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if(curl_errno($ch)){
+            var_dump($httpCode);
+            return curl_error($ch);
+        }
         curl_close($ch);
         return $result;
     }

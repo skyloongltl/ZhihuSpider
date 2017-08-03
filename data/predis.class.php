@@ -1,4 +1,5 @@
 <?php
+namespace data;
 class predis{
 
     public static function getInstance()
@@ -6,7 +7,7 @@ class predis{
         static $instances = array();
         $key = getmypid();
         if (empty($instances[$key])) {
-            $instances[$key] = new Redis();
+            $instances[$key] = new \Redis();
 
             $instances[$key]->connect('127.0.0.1', '6379');
         }
