@@ -165,11 +165,12 @@ function getUserFollow($type = '',$tmp_u_id, $offset = 0, $url = ''){
         //error_log('curl ' . $tmp_u_id . $type . " is empty\n", 3, './error.log');
         return;
     }
-    var_dump($user_following);
     if(isset($user_following['error'])){
         //TODO
         $redis->set('error','true');
         $redis->close();
+        error_log("There have been some errors", 3, DIR.'/error.log');
+        echo "There have been some errors!!!!!";
         return;
     }
     foreach ($user_following['data'] as $v) {
@@ -208,6 +209,8 @@ function getUser($tmp_u_id){
         //TODO
         $redis->set('error', "true");
         $redis->close();
+        error_log("There have been some errors", 3, DIR.'/error.log');
+        echo "There have been some errors!!!!!";
         return false;
     }
     $ret = getUserInfo($result);
