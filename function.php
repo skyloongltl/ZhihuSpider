@@ -152,12 +152,11 @@ function getUserFollow($type = '',$tmp_u_id, $offset = 0, $url = ''){
     $limit = 20;
     $redis = \data\predis::getInstance();
     $header = array(
-        'Authorization: Bearer 2|1:0|10:1500900647|4:z_c0|92:Mi4wQUZDQ3ZEckNtQXNBZ01LekJLbVJDeVlBQUFCZ0FsVk5KM3FkV1FCelVYeGdBMDdoMkJsVDFob0puU040Tm16aHlR|fc953414e362fc4dd8efdae84ce99cf1f57654e7df9953ed04fa0db125a93dea',
+        'Authorization: Bearer Mi4xUVhXdkJBQUFBQUFBZ01LekJLbVJDeGNBQUFCaEFsVk5WcEhMV1FBN1Q2bVBZN0dSdVBUMXRITDZWUGpja2VucTN3|1503921238|fff9dc0d762f64a63b2da2b627c48f7868479732',
     );
     $url = "https://www.zhihu.com/api/v4/members/{$tmp_u_id}/{$type}?include={$include}&offset={$offset}&limit={$limit}";
     echo "-------------start curl $tmp_u_id  [ " . ($offset/20+1) . " ] page $type------------\n";
     echo "url: $url\n";
-    ob_flush();
     $result = \data\Request::curl($url, $cookie, $header);
     $user_following = getFollowingInfo($result);
     if((empty($user_following['data']) || !isset($user_following['data']))){
@@ -165,11 +164,12 @@ function getUserFollow($type = '',$tmp_u_id, $offset = 0, $url = ''){
         //error_log('curl ' . $tmp_u_id . $type . " is empty\n", 3, './error.log');
         return;
     }
-    var_dump($user_following);
     if(isset($user_following['error'])){
         //TODO
         $redis->set('error','true');
         $redis->close();
+        error_log("There have been some errors", 3, DIR.'/error.log');
+        echo "There have been some errors!!!!!";
         return;
     }
     foreach ($user_following['data'] as $v) {
@@ -194,7 +194,7 @@ function getUser($tmp_u_id){
     $include = "locations%2Cemployments%2Cgender%2Ceducations%2Cbusiness%2Cvoteup_count%2Cthanked_Count%2Cfollower_count%2Cfollowing_count%2Ccover_url%2Cfollowing_topic_count%2Cfollowing_question_count%2Cfollowing_favlists_count%2Cfollowing_columns_count%2Cavatar_hue%2Canswer_count%2Carticles_count%2Cpins_count%2Cquestion_count%2Ccolumns_count%2Ccommercial_question_count%2Cfavorite_count%2Cfavorited_count%2Clogs_count%2Cmarked_answers_count%2Cmarked_answers_text%2Cmessage_thread_token%2Caccount_status%2Cis_active%2Cis_bind_phone%2Cis_force_renamed%2Cis_bind_sina%2Cis_privacy_protected%2Csina_weibo_url%2Csina_weibo_name%2Cshow_sina_weibo%2Cis_blocking%2Cis_blocked%2Cis_following%2Cis_followed%2Cmutual_followees_count%2Cvote_to_count%2Cvote_from_count%2Cthank_to_count%2Cthank_from_count%2Cthanked_count%2Cdescription%2Chosted_live_count%2Cparticipated_live_count%2Callow_message%2Cindustry_category%2Corg_name%2Corg_homepage%2Cbadge%5B%3F(type%3Dbest_answerer)%5D.topics";
     $url = "https://www.zhihu.com/api/v4/members/{$tmp_u_id}?include={$include}";
     $header = array(
-        'Authorization: Bearer 2|1:0|10:1500900647|4:z_c0|92:Mi4wQUZDQ3ZEckNtQXNBZ01LekJLbVJDeVlBQUFCZ0FsVk5KM3FkV1FCelVYeGdBMDdoMkJsVDFob0puU040Tm16aHlR|fc953414e362fc4dd8efdae84ce99cf1f57654e7df9953ed04fa0db125a93dea',
+        'Authorization: Bearer Mi4xUVhXdkJBQUFBQUFBZ01LekJLbVJDeGNBQUFCaEFsVk5WcEhMV1FBN1Q2bVBZN0dSdVBUMXRITDZWUGpja2VucTN3|1503921238|fff9dc0d762f64a63b2da2b627c48f7868479732',
     );
     echo "----------------start curl {$tmp_u_id} userInfo----------------\n";
     $result = \data\Request::curl($url, $cookie, $header);
@@ -203,14 +203,16 @@ function getUser($tmp_u_id){
         echo "----------------curl failed-------------\n";
         return false;
     }
+    $ret = getUserInfo($result);
     $redis = \data\predis::getInstance();
-    if(isset($result['error'])){
+    if(isset($ret['error'])){
         //TODO
         $redis->set('error', "true");
         $redis->close();
+        error_log("There have been some errors", 3, DIR.'/error.log');
+        echo "There have been some errors!!!!!";
         return false;
     }
-    $ret = getUserInfo($result);
     echo "--------------curl $tmp_u_id userInfo end------------------\n";
     return $ret;
 }
