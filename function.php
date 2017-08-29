@@ -11,7 +11,7 @@ function getFollowingInfo($followingData)
     $followingArray = array();
     $followingArray['paging'] = $data['paging'];
     empty($followingArray['error']) ?  : $followingArray['error'] = $data['error'];
-    $size = count($data['data']);
+    $size = empty(count($data['data'])) ? 0 : count($data['data']);
     for ($i = 0; $i < $size; $i++) {
         $followingArray['data'][$i] = array_filter($data['data'][$i], 'filter_key', ARRAY_FILTER_USE_KEY);
     }
