@@ -176,14 +176,37 @@ EOL;
             list($insert_sql, $value) = $this->sql_factory->buildInsertStatement($this->table_name, $fields);
         }
 
-        $stmt = $this->pdo->prepare($insert_sql);
-        $result = $stmt->execute($value);
-        $this->identity_object->reset();
-        if($result === false){
-            //TODO
-            var_dump($stmt->errorInfo());
+        try {
+            $stmt = $this->pdo->prepare($insert_sql);
+            $result = $stmt->execute($value);
+            $this->identity_object->reset();
+            if ($result === false) {
+                //TODO
+                var_dump($stmt->errorInfo());
+            }
+            return $this->pdo->lastInsertId();
+        }catch (\PDOException $e){
+            if($e->errorInfo[0] == 2006 || $e->errorInfo[0] == 2013 || $e->errorInfo[0] == 70100){
+                Database::close();
+                $count = 1;
+                while (!Database::getInstance()->is_connect){
+                    sleep(1);
+                    echo "第{$count}次重新连接数据库失败";
+                    $count++;
+                }
+                $this->pdo = Database::getInstance()->pdo;
+                $stmt = $this->pdo->prepare($insert_sql);
+                $result = $stmt->execute($value);
+                $this->identity_object->reset();
+                if ($result === false) {
+                    //TODO
+                    var_dump($stmt->errorInfo());
+                }
+                return $this->pdo->lastInsertId();
+            }else{
+                echo $e->errorInfo[2];
+            }
         }
-        return $this->pdo->lastInsertId();
     }
 
     /**
@@ -201,15 +224,39 @@ EOL;
             list($update_sql, $value) = $this->sql_factory->buildInsertStatement($this->table_name, $fields, $this->identity_object);
         }
 
-        $stmt = $this->pdo->prepare($update_sql);
-        $result = $stmt->execute($value);
-        $this->identity_object->reset();
-        if($result === false){
-            //TODO
-            var_dump($update_sql, $this->fetchSql());
-            var_dump($stmt->errorInfo());
+        try {
+            $stmt = $this->pdo->prepare($update_sql);
+            $result = $stmt->execute($value);
+            $this->identity_object->reset();
+            if ($result === false) {
+                //TODO
+                var_dump($update_sql, $this->fetchSql());
+                var_dump($stmt->errorInfo());
+            }
+            return $stmt->rowCount();
+        }catch (\PDOException $e){
+            if($e->errorInfo[0] ==70100 || $e->errorInfo[0] == 2006 || $e->errorInfo[0] == 2013){
+                Database::close();
+                $count = 1;
+                while (!Database::getInstance()->is_connect){
+                    sleep(1);
+                    echo "数据库第{$count}次重新连接失败\n";
+                    $count++;
+                }
+                $this->pdo = Database::getInstance()->pdo;
+                $stmt = $this->pdo->prepare($update_sql);
+                $result = $stmt->execute($value);
+                $this->identity_object->reset();
+                if ($result === false) {
+                    //TODO
+                    var_dump($update_sql, $this->fetchSql());
+                    var_dump($stmt->errorInfo());
+                }
+                return $stmt->rowCount();
+            }else{
+                echo $e->errorInfo[2];
+            }
         }
-        return $stmt->rowCount();
     }
 
     public function select(){
@@ -243,5 +290,9 @@ EOL;
     public function count($value){
         $amount = $this->field("count({$value}) as amount")->select();
         return $amount[0]['amount'];
+    }
+
+    public function close(){
+        Database::close();
     }
 }

@@ -38,4 +38,8 @@ class User{
     public static function fetchSql(){
         return Model::getInstance(self::TABLE_NAME)->fetchSql();
     }
+
+    public static function close(){
+        Model::getInstance(self::TABLE_NAME)->close();
+    }
 }

@@ -27,7 +27,7 @@ while(true){
 
     if ($redis->get('error') == "true") {
         echo "----------error-------\n";
-        error_log('here have been some errors', 3, DIR . '/error.log');
+        error_log("here have been some errors\n", 3, DIR . '/error.log');
         break;
     }
 
@@ -63,9 +63,9 @@ function getData(swoole_process $process){
         'user_id' => $tmp_u_id
     );
     \data\User::update($where, $userInfo);
+    \data\User::close();
     $endTime = microtime_float();
     $totalTime = $endTime - $startTime;
     echo "------------total " . $totalTime . "seconds on " . $tmp_u_id . "-----------\n";
     $process->exit(0);
 }
-$redis->close();

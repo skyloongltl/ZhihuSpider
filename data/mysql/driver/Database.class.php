@@ -3,6 +3,7 @@ namespace data\mysql\driver;
 class Database{
     public static $instance;
     public $pdo;
+    public $is_connect = false;
 
     public function __construct()
     {
@@ -11,8 +12,10 @@ class Database{
         try{
             $this->pdo = new \PDO($dsn, $config['DB_USER'], $config['DB_PWD'], array(\PDO::ATTR_PERSISTENT => true));
             $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->is_connect = true;
         }catch (\PDOException $e){
             echo $e->getMessage();
+            $this->is_connect = false;
         }
     }
 
@@ -23,5 +26,11 @@ class Database{
             self::$instance[$key] = new self();
         }
         return self::$instance[$key];
+    }
+
+    public static function close(){
+        $key = getmypid();
+        self::$instance[$key] = null;
+        unset(self::$instance[$key]);
     }
 }
