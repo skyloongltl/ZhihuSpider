@@ -1,12 +1,10 @@
 <?php
 set_time_limit(0);
-mb_internal_encoding('UTF-8');
-mb_http_output('UTF-8');
 define('DIR', dirname(__FILE__));
-include DIR . "/data/config.php";
-include DIR . "/data/mysql/db.config.php";
-include DIR . "/function.php";
-require DIR . '/AutoLoading.php';
+include DIR . '/data/config.php';
+include DIR . '/data/mysql/db.config.php';
+include DIR . '/function.php';
+include DIR . '/AutoLoading.php';
 spl_autoload_register(array('AutoLoading', 'autoload'));
 
 $redis = \data\predis::getInstance();
@@ -16,7 +14,7 @@ $redis->set('error', 'false');
 $max_connect = 2;
 $workers = array();
 
-while(true){
+while (true){
     echo "--------begin get user info--------\n";
     $total = $redis->sCard('request_queue');
     $current_count = ($total <= $max_connect) ? $total : $max_connect;
@@ -35,14 +33,14 @@ while(true){
         $process = new swoole_process('getData', false, false);
         $pid = $process->start();
         $workers[$pid] = $process;
-        usleep("1");
+        usleep(1);
     }
 
-    for ($i = 0; $i < $max_connect; $i++){
+    for ($i = 0; $i < $max_connect; $i ++){
         $ret = swoole_process::wait();
         $pid = $ret['pid'];
         unset($workers[$pid]);
-        echo "worker $pid exit".PHP_EOL;
+        echo "worker $pid exit\n";
     }
 }
 
@@ -50,10 +48,9 @@ function getData(swoole_process $process){
     $startTime = microtime_float();
     $tmp_redis = \data\predis::getInstance();
     $tmp_u_id = $tmp_redis->sPop('request_queue');
-    getUserFollow('followers', $tmp_u_id);
-    getUserFollow('followees', $tmp_u_id);
+
     $userInfo = getUser($tmp_u_id);
-    $tmp_redis->sAdd('already_request_queue', $tmp_u_id);
+    $tmp_redis->sAdd('already_get_request_queue', $tmp_u_id);
     $tmp_redis->close();
     if ($userInfo === false) {
         echo "--------------unknow error-----------\n";
